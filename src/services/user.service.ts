@@ -5,13 +5,14 @@ import { UserDto } from 'src/dto/user.dto';
 import { GlobalResponse } from 'src/shared/response';
 import { sign } from 'jsonwebtoken';
 import { hash, genSalt, compare } from 'bcrypt';
-import { globalAgent } from 'http';
 import { RolesEntity } from 'src/entities/roles.entity';
+import { UserAdapter } from 'src/adapters/user.adapter';
 @Injectable()
 export class UserService {
 	constructor(
 		@Inject('UserRepository') private readonly userRepo: Repository<UserEntity>,
-		@Inject('RolesRepository') private readonly rolerepo: Repository<RolesEntity>
+		@Inject('RolesRepository') private readonly rolerepo: Repository<RolesEntity>,
+		private readonly userAdapter: UserAdapter
 	) {}
 
 	async getAllUsers() {
@@ -22,7 +23,7 @@ export class UserService {
 
 	async createUser(data: UserDto): Promise<GlobalResponse> {
 		try {
-			if (await this.checkEmail(data.email)) {
+			if ((await (await this.findByEmail(data.email)).length) != 0) {
 				return new GlobalResponse(false, HttpStatus.CONFLICT, [], 'Email Exists');
 			} else {
 				if (await this.checkPhoneNumber(data.phoneNo)) {
@@ -30,10 +31,11 @@ export class UserService {
 				} else {
 					data.password = await hash(data.password, 6);
 					const result = await this.userRepo.save(data);
-					return new GlobalResponse(true, HttpStatus.CREATED, result, '');
+					return new GlobalResponse(true, HttpStatus.CREATED, [], 'Success');
 				}
 			}
 		} catch (error) {
+			console.log(error);
 			return new GlobalResponse(false, HttpStatus.INTERNAL_SERVER_ERROR, [], error.message);
 		}
 	}
@@ -42,13 +44,12 @@ export class UserService {
 		try {
 			const isThere = await this.findByEmail(data.email.trim());
 			if (isThere.length != 0) {
-				console.log(isThere);
 				if (await compare(data.password.trim(), isThere[0].password)) {
 					return new GlobalResponse(
 						true,
 						HttpStatus.OK,
-						{ token: this.signToken(isThere[0].email), user: isThere[0]},
-						''
+						this.userAdapter.loginResponse(isThere[0], this.signToken(isThere[0].email)),
+						'Success'
 					);
 				} else {
 					return new GlobalResponse(false, HttpStatus.NOT_ACCEPTABLE, [], 'Invalid Password');
@@ -61,14 +62,14 @@ export class UserService {
 		}
 	}
 
-	async checkEmail(email): Promise<boolean> {
-		const result = await this.userRepo.find({
-			where: {
-				email: email
-			}
-		});
-		return result.length === 0 ? false : true;
-	}
+	// async checkEmail(email): Promise<boolean> {
+	// 	const result = await this.userRepo.find({
+	// 		where: {
+	// 			email: email
+	// 		}
+	// 	});
+	// 	return result.length === 0 ? false : true;
+	// }
 
 	async checkPhoneNumber(phNo) {
 		const result = await this.userRepo.find({

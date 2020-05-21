@@ -18,10 +18,10 @@ export class UserController {
 		return this.userService.createUser(data);
 	}
 
-	// @Post('create/role')
-	// createRole(@Body() patientrole: RoleDto) {
-	// 	return this.userService.createRole(patientrole);
-	// }
+	@Post('create/role')
+	createRole(@Body() patientrole: RoleDto) {
+		return this.userService.createRole(patientrole);
+	}
 
 	@Post('login')
 	loginUser(@Body() data: LoginDto) {

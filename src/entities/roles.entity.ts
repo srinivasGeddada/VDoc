@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToOne, ManyToOne, OneToMany } from 'typeorm';
 import { GenericEntity } from 'src/generic/generic.entity';
 import { UserEntity } from './user.entity';
 
@@ -10,8 +10,8 @@ export class RolesEntity extends GenericEntity {
 	RoleName: string;
 
 	@Column({ type: 'bool' })
-    TwoStepAuthRequired: boolean;
-    
-    @OneToOne(()=>UserEntity,(user:UserEntity)=>user.roles)
-    user:UserEntity;
+	TwoStepAuthRequired: boolean;
+
+	@OneToMany(() => UserEntity, (user: UserEntity) => user.roles)
+	user: UserEntity;
 }

@@ -1,5 +1,5 @@
 import { GenericEntity } from 'src/generic/generic.entity';
-import { Column, PrimaryGeneratedColumn, Entity, OneToOne, JoinColumn } from 'typeorm';
+import { Column, PrimaryGeneratedColumn, Entity, OneToOne, JoinColumn, OneToMany, ManyToOne } from 'typeorm';
 import { RolesEntity } from './roles.entity';
 
 @Entity({ name: 'user' })
@@ -11,8 +11,6 @@ export class UserEntity extends GenericEntity {
 	@Column({ type: 'text', nullable: false })
 	password: string;
 
-	@Column({ type: 'text', nullable: true })
-	address: string;
 
 	@Column({ type: 'text', nullable: false })
 	email: string;
@@ -23,7 +21,7 @@ export class UserEntity extends GenericEntity {
 	@Column({ nullable: false })
 	TblRole_ID: number;
 
-	@OneToOne(() => RolesEntity, (role: RolesEntity) => role.user)
+	@ManyToOne(() => RolesEntity, (role: RolesEntity) => role.user)
 	@JoinColumn({ name: 'TblRole_ID' })
 	roles: RolesEntity;
 }
