@@ -13,7 +13,10 @@ export class DoctorEntity extends GenericEntity {
 
 	@Column({ type: 'varchar', length: '500' })
 	Address: any;
-
+	@Column({ type: 'varchar', length: 11, nullable: false })
+	PhoneNo: any;
+	@Column({ type: 'bool', default: false })
+	isDeleted: boolean;
 	@Column() TblCountry_ID: any;
 	@Column() TblState_ID: any;
 	@Column() TblCity_ID: any;

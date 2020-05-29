@@ -1,6 +1,6 @@
 export class CityDto {
 	ID?: number;
 	city: string;
-	counrtyID: number;
+	countryID: number;
 	stateID: number;
 }
